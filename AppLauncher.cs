@@ -81,7 +81,7 @@ namespace DevMemory
                 {
                     ProcessStartInfo appPsi = new ProcessStartInfo();
                     appPsi.FileName = browserPath;
-                    appPsi.Arguments = "--app=\"http://localhost:5005\" --user-data-dir=\"" + profileDir + "\" --window-size=1360,860";
+                    appPsi.Arguments = "--app=\"http://localhost:5005/dashboard\" --user-data-dir=\"" + profileDir + "\" --window-size=1360,860";
                     appPsi.UseShellExecute = true;
 
                     Process appProc = Process.Start(appPsi);
@@ -100,13 +100,13 @@ namespace DevMemory
                 catch
                 {
                     // Fallback to default browser
-                    Process.Start(new ProcessStartInfo("http://localhost:5005") { UseShellExecute = true });
+                    Process.Start(new ProcessStartInfo("http://localhost:5005/dashboard") { UseShellExecute = true });
                 }
             }
             else
             {
                 // Fallback to default browser
-                Process.Start(new ProcessStartInfo("http://localhost:5005") { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo("http://localhost:5005/dashboard") { UseShellExecute = true });
             }
         }
 

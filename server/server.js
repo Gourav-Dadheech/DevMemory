@@ -193,13 +193,16 @@ app.get('/api/download-zip', (req, res) => {
   }
 });
 
-// 9. Official Product / Download Landing Page (for web visitors)
-app.get(['/download', '/landing'], (req, res) => {
+// 9. Official Product / Download Landing Page (for web visitors & root)
+app.get(['/', '/download', '/landing'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 10. Local Developer Cockpit Dashboard (default for local desktop app)
-app.get(['/', '/dashboard', '/app'], (req, res) => {
+// 10. Local Developer Cockpit Dashboard (for local desktop app)
+app.get(['/dashboard', '/app'], (req, res) => {
+  if (process.env.VERCEL) {
+    return res.redirect('/');
+  }
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 

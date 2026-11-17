@@ -18,17 +18,17 @@ timeout /t 2 /nobreak >nul
 
 :: Launch in Standalone Native App Window (no browser tabs, no address bar)
 if exist "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" (
-    start "" "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" --app=http://localhost:5005 --user-data-dir="%LOCALAPPDATA%\DevMemory\profile" --window-size=1360,860
+    start "" "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" --app=http://localhost:5005/dashboard --user-data-dir="%LOCALAPPDATA%\DevMemory\profile" --window-size=1360,860
     exit /b
 )
 if exist "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" (
-    start "" "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" --app=http://localhost:5005 --user-data-dir="%LOCALAPPDATA%\DevMemory\profile" --window-size=1360,860
+    start "" "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" --app=http://localhost:5005/dashboard --user-data-dir="%LOCALAPPDATA%\DevMemory\profile" --window-size=1360,860
     exit /b
 )
 if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" (
-    start "" "%ProgramFiles%\Google\Chrome\Application\chrome.exe" --app=http://localhost:5005 --user-data-dir="%LOCALAPPDATA%\DevMemory\profile" --window-size=1360,860
+    start "" "%ProgramFiles%\Google\Chrome\Application\chrome.exe" --app=http://localhost:5005/dashboard --user-data-dir="%LOCALAPPDATA%\DevMemory\profile" --window-size=1360,860
     exit /b
 )
 
 :: Fallback if neither browser is found
-start http://localhost:5005
+start http://localhost:5005/dashboard
