@@ -200,6 +200,25 @@ namespace DevMemoryInstaller
 
             try
             {
+                // Terminate any running instances before reinstalling or upgrading
+                try
+                {
+                    foreach (var proc in Process.GetProcessesByName("DevMemory"))
+                    {
+                        try { proc.Kill(); proc.WaitForExit(1000); } catch {}
+                    }
+                }
+                catch {}
+
+                try
+                {
+                    ProcessStartInfo killPsi = new ProcessStartInfo("cmd.exe", "/c \"for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :5005') do taskkill /f /pid %a\"");
+                    killPsi.CreateNoWindow = true;
+                    killPsi.WindowStyle = ProcessWindowStyle.Hidden;
+                    using (Process kp = Process.Start(killPsi)) { kp.WaitForExit(1500); }
+                }
+                catch {}
+
                 Directory.CreateDirectory(targetDir);
 
                 // 1. Extract embedded zip resource
