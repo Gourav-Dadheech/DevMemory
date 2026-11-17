@@ -2,7 +2,9 @@
   "version": 2,
   "cleanUrls": true,
   "routes": [
+    { "src": "/DevMemory-Setup.exe", "dest": "/DevMemory-Setup.exe" },
     { "src": "/DevMemory.zip", "dest": "/DevMemory.zip" },
+    { "src": "/DevMemory.ico", "dest": "/DevMemory.ico" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

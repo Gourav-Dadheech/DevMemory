@@ -120,17 +120,18 @@
       <!-- Action Buttons -->
       <div class="flex items-center gap-3">
         <a 
-          href="/" 
+          href="#install" 
           class="hidden sm:inline-flex text-xs font-semibold px-3.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-all"
         >
-          Open App
+          Options
         </a>
         <a 
-          href="#install" 
+          href="/DevMemory-Setup.exe" 
+          download="DevMemory-Setup.exe"
           class="text-xs font-bold px-4 py-1.5 rounded-lg bg-white text-black hover:bg-neutral-200 transition-all shadow-md shadow-white/10 flex items-center gap-1.5"
         >
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          <span>Get DevMemory</span>
+          <span>Download .exe</span>
         </a>
       </div>
     </div>
@@ -159,21 +160,32 @@
     </p>
 
     <!-- Hero CTA Buttons -->
-    <div class="flex flex-wrap items-center justify-center gap-3.5 w-full max-w-md">
-      <!-- 1-Click ZIP Download -->
+    <div class="flex flex-wrap items-center justify-center gap-3 w-full max-w-xl">
+      <!-- 1-Click EXE Installer Download -->
+      <a 
+        href="/DevMemory-Setup.exe" 
+        download="DevMemory-Setup.exe"
+        class="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white text-black font-extrabold text-xs tracking-wide hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 shadow-xl shadow-white/10"
+      >
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span>Download for Windows (.exe)</span>
+      </a>
+
+      <!-- Portable ZIP -->
       <a 
         href="/DevMemory.zip" 
         download="DevMemory.zip"
-        class="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-black font-extrabold text-xs tracking-wide hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 shadow-xl shadow-white/10"
+        class="w-full sm:w-auto px-4 py-3.5 rounded-xl bg-neutral-900 text-white font-medium text-xs border border-white/20 hover:border-white/50 hover:bg-neutral-800 transition-all flex items-center justify-center gap-2"
+        title="Download portable zip"
       >
-        <i data-lucide="download" class="w-4 h-4"></i>
-        <span>Download for Windows (.zip)</span>
+        <i data-lucide="folder-archive" class="w-3.5 h-3.5 text-neutral-400"></i>
+        <span>Portable (.zip)</span>
       </a>
 
       <!-- Run via NPX -->
       <button 
         onclick="copyCommand('npx devmemory')"
-        class="w-full sm:w-auto px-5 py-3 rounded-xl bg-neutral-900 text-white font-mono text-xs border border-white/20 hover:border-white/50 hover:bg-neutral-800 transition-all flex items-center justify-center gap-2"
+        class="w-full sm:w-auto px-4 py-3.5 rounded-xl bg-neutral-900 text-white font-mono text-xs border border-white/20 hover:border-white/50 hover:bg-neutral-800 transition-all flex items-center justify-center gap-2"
         title="Click to copy npx command"
       >
         <span class="text-neutral-500">$</span>
@@ -183,12 +195,12 @@
     </div>
 
     <!-- Micro Metadata -->
-    <div class="flex items-center gap-6 mt-6 text-[11px] text-neutral-500 font-mono">
-      <span>✓ 36 KB Clean Package</span>
+    <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-6 text-[11px] text-neutral-500 font-mono">
+      <span>✓ Windows Installer (.exe Setup)</span>
       <span>•</span>
-      <span>✓ Windows / macOS / Linux</span>
+      <span>✓ Adds Official Logo to Desktop</span>
       <span>•</span>
-      <span>✓ Zero Sign-Up</span>
+      <span>✓ 100% Free & Runs Locally</span>
     </div>
   </section>
 
@@ -365,29 +377,45 @@
         </button>
       </div>
 
-      <!-- OPTION 2: 1-CLICK ZIP -->
-      <div class="pro-card rounded-2xl p-7 flex flex-col justify-between">
+      <!-- OPTION 2: 1-CLICK WINDOWS INSTALLER & ZIP -->
+      <div class="pro-card rounded-2xl p-7 flex flex-col justify-between border-white/30 bg-white/[0.03]">
         <div>
-          <div class="text-xs font-mono text-neutral-400 uppercase tracking-wider mb-2">Option 02</div>
-          <h3 class="text-xl font-black text-white mb-2">Standalone ZIP</h3>
-          <p class="text-neutral-400 text-xs leading-relaxed mb-6">
-            Download the clean package (only 36 KB). Extract anywhere and double-click <strong>start.bat</strong> to run. Perfect to share with friends.
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono text-white/90 uppercase tracking-wider">Option 02</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white text-black font-bold">Recommended</span>
+          </div>
+          <h3 class="text-xl font-black text-white mb-2">Windows Installer (.exe)</h3>
+          <p class="text-neutral-400 text-xs leading-relaxed mb-4">
+            Automated setup wizard. One click installs DevMemory to your personal PC, creates an official logo shortcut on your Desktop, and launches automatically.
           </p>
 
           <div class="bg-black border border-white/10 rounded-xl p-3 flex items-center justify-between text-xs text-neutral-300 mb-4">
-            <span class="font-mono">DevMemory.zip</span>
-            <span class="text-neutral-500 font-mono text-[11px]">36 KB</span>
+            <div class="flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-4 h-4 text-white"></i>
+              <span class="font-mono">DevMemory-Setup.exe</span>
+            </div>
+            <span class="text-neutral-400 font-mono text-[11px]">~950 KB</span>
           </div>
         </div>
 
-        <a 
-          href="/DevMemory.zip" 
-          download="DevMemory.zip"
-          class="w-full py-2.5 rounded-xl bg-neutral-900 border border-white/20 hover:border-white/50 text-white font-extrabold text-xs transition-all flex items-center justify-center gap-1.5"
-        >
-          <i data-lucide="download" class="w-4 h-4"></i>
-          <span>Download DevMemory.zip</span>
-        </a>
+        <div class="flex flex-col gap-2">
+          <a 
+            href="/DevMemory-Setup.exe" 
+            download="DevMemory-Setup.exe"
+            class="w-full py-2.5 rounded-xl bg-white text-black hover:bg-neutral-200 font-extrabold text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-white/10"
+          >
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Download Installer (.exe)</span>
+          </a>
+          <a 
+            href="/DevMemory.zip" 
+            download="DevMemory.zip"
+            class="w-full py-2 rounded-xl bg-neutral-900 border border-white/15 hover:border-white/40 text-neutral-300 hover:text-white font-medium text-xs transition-all flex items-center justify-center gap-1.5"
+          >
+            <i data-lucide="folder-archive" class="w-3.5 h-3.5 text-neutral-400"></i>
+            <span>Or Download Portable .ZIP</span>
+          </a>
+        </div>
       </div>
 
       <!-- OPTION 3: GIT CLONE -->
@@ -430,9 +458,10 @@
       </div>
 
       <div class="flex items-center gap-6">
-        <a href="/" class="hover:text-white transition-colors">Launch App</a>
-        <a href="/DevMemory.zip" download class="hover:text-white transition-colors">Download (.zip)</a>
+        <a href="/DevMemory-Setup.exe" download class="hover:text-white transition-colors">Windows Installer (.exe)</a>
+        <a href="/DevMemory.zip" download class="hover:text-white transition-colors">Portable (.zip)</a>
         <a href="#features" class="hover:text-white transition-colors">Features</a>
+        <a href="https://github.com/Gourav-Dadheech/DevMemory" target="_blank" class="hover:text-white transition-colors">GitHub</a>
       </div>
     </div>
   </footer>
