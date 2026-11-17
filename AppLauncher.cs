@@ -34,46 +34,79 @@ namespace DevMemory
                 return;
             }
 
-            // 2. Check if port 5005 is already active
-            bool isRunning = IsPortActive(5005);
+            // 2. Automatically clear any lingering zombie processes on port 5005
+            FreePort(5005);
+            Thread.Sleep(200);
 
-            if (!isRunning)
-            {
-                // Start Node server in background
-                try
-                {
-                    ProcessStartInfo psi = new ProcessStartInfo();
-                    psi.FileName = "cmd.exe";
-                    psi.Arguments = "/c start \"\" /b node \"" + serverScript + "\"";
-                    psi.WorkingDirectory = serverDir;
-                    psi.WindowStyle = ProcessWindowStyle.Hidden;
-                    psi.CreateNoWindow = true;
-                    psi.UseShellExecute = true;
-
-                    Process.Start(psi);
-
-                    // Wait up to 2 seconds for server to start
-                    for (int i = 0; i < 20; i++)
-                    {
-                        Thread.Sleep(100);
-                        if (IsPortActive(5005)) break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Failed to launch DevMemory backend server:\n" + ex.Message, "DevMemory Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-            }
-
-            // 3. Open browser to dashboard
+            // 3. Start Node server in background
+            Process serverProc = null;
             try
             {
-                Process.Start(new ProcessStartInfo("http://localhost:5005/dashboard") { UseShellExecute = true });
+                ProcessStartInfo serverPsi = new ProcessStartInfo();
+                serverPsi.FileName = "node";
+                serverPsi.Arguments = "\"" + serverScript + "\"";
+                serverPsi.WorkingDirectory = serverDir;
+                serverPsi.CreateNoWindow = true;
+                serverPsi.WindowStyle = ProcessWindowStyle.Hidden;
+                serverPsi.UseShellExecute = false;
+
+                serverProc = Process.Start(serverPsi);
+
+                // Wait up to 3 seconds for server to listen on port 5005
+                for (int i = 0; i < 30; i++)
+                {
+                    Thread.Sleep(100);
+                    if (IsPortActive(5005)) break;
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Could not open browser to http://localhost:5005/dashboard:\n" + ex.Message, "DevMemory Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Failed to launch DevMemory backend server:\n" + ex.Message, "DevMemory Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 4. Launch in Native Standalone App Window (No browser tabs, no address bar)
+            string browserPath = FindAppBrowser();
+            string profileDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"DevMemory\profile");
+
+            try
+            {
+                Directory.CreateDirectory(profileDir);
+            }
+            catch {}
+
+            if (!string.IsNullOrEmpty(browserPath))
+            {
+                try
+                {
+                    ProcessStartInfo appPsi = new ProcessStartInfo();
+                    appPsi.FileName = browserPath;
+                    appPsi.Arguments = "--app=\"http://localhost:5005\" --user-data-dir=\"" + profileDir + "\" --window-size=1360,860";
+                    appPsi.UseShellExecute = true;
+
+                    Process appProc = Process.Start(appPsi);
+
+                    // If we can track the app window, shut down the server when the user closes the app
+                    if (appProc != null && serverProc != null && !serverProc.HasExited)
+                    {
+                        appProc.WaitForExit();
+                        try
+                        {
+                            if (!serverProc.HasExited) serverProc.Kill();
+                        }
+                        catch {}
+                    }
+                }
+                catch
+                {
+                    // Fallback to default browser
+                    Process.Start(new ProcessStartInfo("http://localhost:5005") { UseShellExecute = true });
+                }
+            }
+            else
+            {
+                // Fallback to default browser
+                Process.Start(new ProcessStartInfo("http://localhost:5005") { UseShellExecute = true });
             }
         }
 
@@ -97,6 +130,24 @@ namespace DevMemory
             }
         }
 
+        static void FreePort(int port)
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "cmd.exe";
+                psi.Arguments = "/c \"for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :" + port + "') do taskkill /f /pid %a\"";
+                psi.CreateNoWindow = true;
+                psi.WindowStyle = ProcessWindowStyle.Hidden;
+                psi.UseShellExecute = false;
+                using (Process p = Process.Start(psi))
+                {
+                    p.WaitForExit(1500);
+                }
+            }
+            catch {}
+        }
+
         static bool IsPortActive(int port)
         {
             try
@@ -114,6 +165,25 @@ namespace DevMemory
             {
                 return false;
             }
+        }
+
+        static string FindAppBrowser()
+        {
+            string[] candidates = new string[]
+            {
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft\Edge\Application\msedge.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Microsoft\Edge\Application\msedge.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"Google\Chrome\Application\chrome.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Google\Chrome\Application\chrome.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Google\Chrome\Application\chrome.exe")
+            };
+
+            foreach (string p in candidates)
+            {
+                if (File.Exists(p)) return p;
+            }
+
+            return null;
         }
     }
 }

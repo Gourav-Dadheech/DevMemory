@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5005;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 const DB_FILE = path.join(__dirname, 'devmemory-db.json');
 
@@ -193,13 +193,13 @@ app.get('/api/download-zip', (req, res) => {
   }
 });
 
-// 9. Official Product / Download Landing Page
-app.get('/download', (req, res) => {
+// 9. Official Product / Download Landing Page (for web visitors)
+app.get(['/download', '/landing'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 10. Local Developer Cockpit Dashboard
-app.get('/dashboard', (req, res) => {
+// 10. Local Developer Cockpit Dashboard (default for local desktop app)
+app.get(['/', '/dashboard', '/app'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
