@@ -1,0 +1,7 @@
+node_modules/
+devmemory-db.json
+.env
+*.log
+.DS_Store
+.vscode/
+.idea/

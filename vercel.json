@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "routes": [
+    { "src": "/DevMemory.zip", "dest": "/server/public/DevMemory.zip" },
+    { "src": "/app", "dest": "/server/public/index.html" },
+    { "src": "/download", "dest": "/server/public/download.html" },
+    { "src": "/", "dest": "/server/public/download.html" },
+    { "src": "/(.*)", "dest": "/server/public/$1" }
+  ]
+}

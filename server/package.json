@@ -1,0 +1,14 @@
+{
+  "name": "devmemory-server",
+  "version": "1.0.0",
+  "description": "DevMemory - The Local AI Project Brain & Visualizer",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg-dark: #000000;
+  --bg-card: #0d0d0d;
+  --bg-card-hover: #141414;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-highlight: rgba(255, 255, 255, 0.3);
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background-color: #000000;
+  color: #f4f4f5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.07) 0%, transparent 60%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 48px 48px, 48px 48px;
+}
+
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom Scrollbar - Minimal Monochrome */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Glassmorphism Monochrome Card */
+.glass-card {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: #141414;
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -10px rgba(255, 255, 255, 0.04);
+}
+
+/* Architecture Diagram Viewport & Container */
+#diagramViewport {
+  position: relative;
+  overflow: auto;
+  scroll-behavior: smooth;
+  background-color: #000000;
+}
+
+.mermaid-container {
+  display: inline-block;
+  margin: 0 auto;
+  padding: 2.5rem 3rem;
+  min-width: min-content;
+  text-align: center;
+}
+
+.mermaid-container svg {
+  display: block;
+  margin: 0 auto;
+  overflow: visible !important;
+  max-width: none !important;
+  height: auto !important;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.6));
+}
+
+/* Smooth modal animation */
+.modal-enter {
+  animation: modalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

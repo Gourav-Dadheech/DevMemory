@@ -1,0 +1,27 @@
+{
+  "name": "devmemory",
+  "version": "1.0.0",
+  "description": "DevMemory - The Living AI Project Brain & Architecture Visualizer for Solo Developers",
+  "main": "server/server.js",
+  "type": "module",
+  "bin": {
+    "devmemory": "./bin/devmemory.js"
+  },
+  "scripts": {
+    "start": "node bin/devmemory.js"
+  },
+  "keywords": [
+    "developer-tools",
+    "project-management",
+    "architecture-visualizer",
+    "mermaid",
+    "code-scanner",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
