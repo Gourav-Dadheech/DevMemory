@@ -11,6 +11,6 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :5005') do (
 )
 
 echo Starting server...
-start http://localhost:5005/download
+start http://localhost:5005/dashboard
 node server.js
 pause

@@ -21,8 +21,8 @@ console.log(`======================================================\n`);
 
 // Import the server directly
 import('../server/server.js').then(() => {
-  // Automatically open default browser
-  const url = `http://localhost:${PORT}`;
+  // Automatically open default browser to dashboard
+  const url = `http://localhost:${PORT}/dashboard`;
   const startCmd = process.platform === 'win32' ? `start ${url}` :
                    process.platform === 'darwin' ? `open ${url}` : `xdg-open ${url}`;
   

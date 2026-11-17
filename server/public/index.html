@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DevMemory - The Living AI Project Brain</title>
+  <title>DevMemory - The Living AI Project Brain & Visualizer</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
-  
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -17,11 +17,13 @@
             mono: {
               black: '#000000',
               deep: '#080808',
-              card: '#0d0d0d',
-              hover: '#141414',
-              border: 'rgba(255, 255, 255, 0.1)',
+              card: '#101010',
+              hover: '#181818',
+              border: 'rgba(255, 255, 255, 0.12)',
+              subtle: 'rgba(255, 255, 255, 0.05)',
               text: '#f4f4f5',
-              muted: '#a1a1aa'
+              muted: '#a1a1aa',
+              dim: '#71717a'
             }
           }
         }
@@ -34,640 +36,430 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <!-- Mermaid.js for Architecture Diagrams -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Custom Styles -->
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: #000000;
+      color: #f4f4f5;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 60%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 48px 48px, 48px 48px;
+    }
+
+    code, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .pro-card {
+      background: #0d0d0d;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .pro-card:hover {
+      background: #141414;
+      border-color: rgba(255, 255, 255, 0.28);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px -15px rgba(255, 255, 255, 0.05);
+    }
+
+    .glow-border {
+      position: relative;
+    }
+    .glow-border::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2));
+      z-index: -1;
+      opacity: 0.7;
+    }
+
+    /* Custom Toast */
+    #copyToast {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+  </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-white selection:text-black">
 
-  <!-- ================= TOP HEADER ================= -->
-  <header class="border-b border-white/10 bg-black/80 backdrop-blur-xl sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+  <!-- ================= NAVBAR ================= -->
+  <header class="border-b border-white/10 bg-black/80 backdrop-blur-xl sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
       
-      <!-- Brand & Status -->
+      <!-- Brand -->
       <a href="/" class="flex items-center gap-3 group">
         <div class="w-8 h-8 rounded-lg bg-white text-black flex items-center justify-center font-black text-sm tracking-tighter transition-transform group-hover:scale-105">
           DM
         </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="font-extrabold text-base tracking-tight text-white">DevMemory</span>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/15">
-              v1.1
-            </span>
-          </div>
-          <p class="text-[11px] text-neutral-400 hidden sm:block">Living Project Brain & Architecture Visualizer</p>
+        <div class="flex items-center gap-2">
+          <span class="font-extrabold text-base tracking-tight text-white">DevMemory</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/15">
+            v1.1
+          </span>
         </div>
       </a>
 
-      <!-- Center Search -->
-      <div class="flex-1 max-w-md hidden md:block">
-        <div class="relative">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500"></i>
-          <input 
-            type="text" 
-            id="searchInput"
-            placeholder="Search projects by name, language, or stack... (Ctrl+K)"
-            class="w-full bg-neutral-900 border border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-white/40 transition-colors font-sans"
-          />
-        </div>
-      </div>
+      <!-- Center Links -->
+      <nav class="hidden md:flex items-center gap-8 text-xs font-medium text-neutral-400">
+        <a href="#features" class="hover:text-white transition-colors">Features</a>
+        <a href="#install" class="hover:text-white transition-colors">Installation</a>
+        <a href="#architecture" class="hover:text-white transition-colors">Architecture</a>
+        <a href="https://github.com/Gourav-Dadheech/DevMemory" target="_blank" class="hover:text-white transition-colors flex items-center gap-1">
+          <span>GitHub</span>
+          <i data-lucide="arrow-up-right" class="w-3 h-3 text-neutral-500"></i>
+        </a>
+      </nav>
 
-      <!-- Right Actions -->
-      <div class="flex items-center gap-2">
-        <!-- 1-Click ZIP Download Direct Button -->
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
         <a 
-          href="/DevMemory.zip" 
-          download="DevMemory.zip"
-          class="hidden sm:inline-flex px-3 py-1.5 rounded-lg bg-white text-black font-extrabold text-xs hover:bg-neutral-200 transition-all shadow-md shadow-white/10 items-center gap-1.5"
-          title="Download DevMemory.zip"
+          href="/" 
+          class="hidden sm:inline-flex text-xs font-semibold px-3.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-all"
+        >
+          Open App
+        </a>
+        <a 
+          href="#install" 
+          class="text-xs font-bold px-4 py-1.5 rounded-lg bg-white text-black hover:bg-neutral-200 transition-all shadow-md shadow-white/10 flex items-center gap-1.5"
         >
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          <span>Download .ZIP</span>
+          <span>Get DevMemory</span>
         </a>
-
-        <!-- Official Website Link -->
-        <a 
-          href="/download" 
-          class="px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 transition-all text-xs flex items-center gap-1"
-          title="View Official Black & White Website"
-        >
-          <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-          <span class="hidden md:inline">Website</span>
-        </a>
-
-        <!-- Get App / Share Modal -->
-        <button 
-          id="shareAppBtn" 
-          title="Run on Any PC or Share"
-          class="px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-white/20 text-white font-semibold hover:border-white/50 transition-all text-xs flex items-center gap-1.5"
-        >
-          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Share / Run</span>
-        </button>
-
-        <!-- Rescan -->
-        <button 
-          id="refreshBtn" 
-          title="Rescan Current Folder"
-          class="p-2 rounded-lg bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 transition-all text-xs flex items-center gap-1"
-        >
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-        </button>
-
-        <!-- Settings -->
-        <button 
-          id="settingsBtn" 
-          title="Settings & Paths"
-          class="p-2 rounded-lg bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 transition-all text-xs flex items-center gap-1"
-        >
-          <i data-lucide="settings" class="w-4 h-4"></i>
-        </button>
       </div>
     </div>
   </header>
 
-  <!-- ================= FOLDER SCANNER & PATH NAVIGATOR ================= -->
-  <div class="bg-black/90 border-b border-white/10 px-4 sm:px-6 lg:px-8 py-2.5">
-    <div class="max-w-7xl mx-auto flex flex-col gap-2">
-      <!-- Path Input Row -->
-      <div class="flex flex-wrap items-center gap-2">
-        <div class="flex items-center gap-1.5 text-xs text-neutral-400 font-medium">
-          <i data-lucide="folder" class="w-4 h-4 text-white"></i>
-          <span class="hidden sm:inline">Folder:</span>
-        </div>
+  <!-- ================= HERO SECTION ================= -->
+  <section class="max-w-5xl mx-auto px-6 pt-24 pb-16 text-center flex flex-col items-center">
+    
+    <!-- Top Announcement Pill -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/15 text-xs text-neutral-300 mb-8 backdrop-blur-md">
+      <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+      <span class="font-medium">100% Free • Open Source • Runs Locally on Your PC</span>
+    </div>
 
-        <!-- Back / Up Button -->
-        <button 
-          id="goUpBtn" 
-          title="Go Up One Folder Level"
-          class="px-2 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-300 border border-white/10 text-xs flex items-center gap-1 transition-colors"
-        >
-          <i data-lucide="arrow-up-left" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Up</span>
-        </button>
+    <!-- Main Headline -->
+    <h1 class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white max-w-4xl leading-[1.08] mb-6">
+      The living brain for <br />
+      <span class="bg-gradient-to-b from-white via-neutral-200 to-neutral-500 bg-clip-text text-transparent">
+        solo developers.
+      </span>
+    </h1>
 
-        <!-- Current Path Input -->
-        <div class="flex-1 min-w-[240px] flex items-center gap-1.5">
-          <input 
-            type="text" 
-            id="pathInput"
-            placeholder="Type or paste any folder path here (e.g. C:\Users\...)"
-            class="w-full bg-neutral-950 border border-white/20 rounded-lg px-3 py-1.5 text-xs text-neutral-200 font-mono focus:outline-none focus:border-white shadow-inner"
-          />
-          <button 
-            id="scanPathBtn"
-            class="px-3.5 py-1.5 rounded-lg bg-white text-black font-extrabold text-xs hover:bg-neutral-200 transition-colors shrink-0 flex items-center gap-1 shadow-md shadow-white/10"
-          >
-            <i data-lucide="search" class="w-3.5 h-3.5"></i>
-            <span>Scan Folder</span>
-          </button>
+    <!-- Subtitle -->
+    <p class="text-base sm:text-lg text-neutral-400 max-w-2xl leading-relaxed mb-10 font-normal">
+      Auto-detect tech stacks, visualize system architectures with interactive diagrams, and pick up exactly where you left off. Completely private, offline-ready, and runs on your machine for ₹0.
+    </p>
+
+    <!-- Hero CTA Buttons -->
+    <div class="flex flex-wrap items-center justify-center gap-3.5 w-full max-w-md">
+      <!-- 1-Click ZIP Download -->
+      <a 
+        href="/DevMemory.zip" 
+        download="DevMemory.zip"
+        class="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-black font-extrabold text-xs tracking-wide hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 shadow-xl shadow-white/10"
+      >
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span>Download for Windows (.zip)</span>
+      </a>
+
+      <!-- Run via NPX -->
+      <button 
+        onclick="copyCommand('npx devmemory')"
+        class="w-full sm:w-auto px-5 py-3 rounded-xl bg-neutral-900 text-white font-mono text-xs border border-white/20 hover:border-white/50 hover:bg-neutral-800 transition-all flex items-center justify-center gap-2"
+        title="Click to copy npx command"
+      >
+        <span class="text-neutral-500">$</span>
+        <span class="font-semibold text-white">npx devmemory</span>
+        <i data-lucide="copy" class="w-3.5 h-3.5 text-neutral-400"></i>
+      </button>
+    </div>
+
+    <!-- Micro Metadata -->
+    <div class="flex items-center gap-6 mt-6 text-[11px] text-neutral-500 font-mono">
+      <span>✓ 36 KB Clean Package</span>
+      <span>•</span>
+      <span>✓ Windows / macOS / Linux</span>
+      <span>•</span>
+      <span>✓ Zero Sign-Up</span>
+    </div>
+  </section>
+
+  <!-- ================= TERMINAL DEMO PREVIEW ================= -->
+  <section class="max-w-4xl mx-auto px-6 pb-20 w-full">
+    <div class="rounded-2xl border border-white/15 bg-neutral-950 shadow-2xl overflow-hidden glow-border">
+      
+      <!-- Terminal Header -->
+      <div class="px-4 py-3 bg-neutral-900/90 border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full bg-neutral-700"></div>
+          <div class="w-3 h-3 rounded-full bg-neutral-700"></div>
+          <div class="w-3 h-3 rounded-full bg-neutral-700"></div>
         </div>
+        <span class="text-[11px] font-mono text-neutral-400">bash — npx devmemory</span>
+        <div class="w-12"></div>
       </div>
 
-      <!-- Quick Preset & Subfolders Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px]">
-        <div class="flex flex-wrap items-center gap-1.5" id="presetPills">
-          <span class="text-neutral-500 text-[10px] uppercase font-bold tracking-wider mr-1">Presets:</span>
-          <button class="preset-pill px-2.5 py-0.5 rounded bg-neutral-900 hover:bg-white hover:text-black text-neutral-300 border border-white/10 transition-colors font-mono" data-preset="projects-by-me">
-            📁 projects by me
-          </button>
-          <button class="preset-pill px-2.5 py-0.5 rounded bg-neutral-900 hover:bg-white hover:text-black text-neutral-300 border border-white/10 transition-colors font-mono" data-preset="desktop">
-            🖥️ Desktop
-          </button>
-          <button class="preset-pill px-2.5 py-0.5 rounded bg-neutral-900 hover:bg-white hover:text-black text-neutral-300 border border-white/10 transition-colors font-mono" data-preset="trial">
-            📦 trial (Current)
-          </button>
-        </div>
-
-        <div class="flex items-center gap-2 text-neutral-400">
-          <span id="scanStatusBadge" class="inline-flex items-center gap-1.5 text-neutral-300 font-medium">
-            <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-            Scanner Ready
-          </span>
-        </div>
-      </div>
-
-      <!-- Quick Subfolder Chips (if any exist) -->
-      <div id="subfoldersBar" class="hidden flex-wrap items-center gap-1.5 pt-1.5 border-t border-white/5 text-[11px]">
-        <span class="text-neutral-500 text-[10px] uppercase font-semibold">Subfolders:</span>
-        <div id="subfoldersList" class="flex flex-wrap gap-1">
-          <!-- Subfolder chips inserted here -->
-        </div>
+      <!-- Terminal Body -->
+      <div class="p-6 font-mono text-xs text-neutral-300 leading-loose overflow-x-auto bg-black">
+        <p class="text-neutral-500"># Run in any folder with existing or scattered projects</p>
+        <p><span class="text-white font-bold">$ npx devmemory</span></p>
+        <p class="text-neutral-400 mt-2">======================================================</p>
+        <p class="text-white font-bold">🧠 DevMemory - Living Project Brain & Visualizer</p>
+        <p class="text-neutral-300">📁 Scanning Folder: <span class="text-white">C:\Users\goura\projects by me</span></p>
+        <p class="text-neutral-300">🚀 Starting at: <span class="text-white underline">http://localhost:5005</span></p>
+        <p class="text-neutral-400">======================================================</p>
+        <p class="text-neutral-300 mt-2">✔ Discovered 7 active projects (<span class="text-white">cinverse, whatsapp-bot, neev-ai</span>...)</p>
+        <p class="text-neutral-300">✔ Generated interactive Mermaid architecture graphs</p>
+        <p class="text-neutral-300">✔ Analyzed recent commits & uncommitted git work</p>
+        <p class="text-white font-semibold mt-1">✨ Opened in default browser automatically.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- ================= MAIN CONTAINER ================= -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col gap-6">
+  <!-- ================= BENTO GRID FEATURES ================= -->
+  <section id="features" class="max-w-6xl mx-auto px-6 py-16 border-t border-white/10">
+    <div class="mb-12">
+      <span class="text-xs font-mono uppercase tracking-widest text-neutral-400">01 / Capabilities</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-2">
+        Engineered for solo developers.
+      </h2>
+      <p class="text-neutral-400 text-sm mt-2 max-w-lg">
+        Everything you need to regain context, understand your systems, and showcase your code.
+      </p>
+    </div>
 
-    <!-- HERO STATS STRIP -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="statsGrid">
-      <div class="glass-card rounded-xl p-4 flex items-center gap-3">
-        <div class="p-2.5 rounded-lg bg-white/10 text-white border border-white/15">
-          <i data-lucide="layers" class="w-5 h-5"></i>
-        </div>
+    <!-- Bento Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      
+      <!-- Card 1: Where You Left Off -->
+      <div class="pro-card rounded-2xl p-6 flex flex-col justify-between">
         <div>
-          <div class="text-2xl font-black text-white" id="statTotalProjects">0</div>
-          <div class="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Total Projects</div>
+          <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white mb-4">
+            <i data-lucide="compass" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Where You Left Off Radar</h3>
+          <p class="text-neutral-400 text-xs leading-relaxed">
+            Inspects the last modified files, git status, and uncommitted edits so you never wonder what you were working on 2 weeks ago.
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-white/10 font-mono text-[11px] text-neutral-400">
+          Last edited: <span class="text-white font-semibold">server.js (2h ago)</span>
         </div>
       </div>
 
-      <div class="glass-card rounded-xl p-4 flex items-center gap-3">
-        <div class="p-2.5 rounded-lg bg-white/10 text-white border border-white/15">
-          <i data-lucide="code-2" class="w-5 h-5"></i>
-        </div>
+      <!-- Card 2: Visual Architecture Maps -->
+      <div class="pro-card rounded-2xl p-6 flex flex-col justify-between md:col-span-2">
         <div>
-          <div class="text-2xl font-black text-white" id="statTotalLines">0</div>
-          <div class="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Lines of Code</div>
-        </div>
-      </div>
-
-      <div class="glass-card rounded-xl p-4 flex items-center gap-3">
-        <div class="p-2.5 rounded-lg bg-white/10 text-white border border-white/15">
-          <i data-lucide="activity" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <div class="text-2xl font-black text-white" id="statActiveProjects">0</div>
-          <div class="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Active Recently</div>
-        </div>
-      </div>
-
-      <div class="glass-card rounded-xl p-4 flex items-center gap-3">
-        <div class="p-2.5 rounded-lg bg-white/10 text-white border border-white/15">
-          <i data-lucide="cpu" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <div class="text-2xl font-black text-white" id="statTechCount">0</div>
-          <div class="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold">Frameworks / Tools</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FILTER & TOOLBAR -->
-    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
-      <!-- Filter Tags -->
-      <div class="flex flex-wrap items-center gap-2" id="filterPills">
-        <button data-filter="all" class="filter-pill active px-3 py-1 rounded-full text-xs font-bold bg-white text-black transition-all">
-          All Projects
-        </button>
-        <button data-filter="pinned" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 transition-all flex items-center gap-1">
-          <span>⭐ Pinned</span>
-        </button>
-        <button data-filter="react" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 transition-all">
-          React
-        </button>
-        <button data-filter="node" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 transition-all">
-          Node.js
-        </button>
-        <button data-filter="python" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 transition-all">
-          Python
-        </button>
-        <button data-filter="uncommitted" class="filter-pill px-3 py-1 rounded-full text-xs font-medium bg-neutral-900 border border-white/10 text-neutral-300 hover:text-white hover:border-white/30 transition-all">
-          Has Unsaved Git Work
-        </button>
-      </div>
-
-      <!-- Quick Tips -->
-      <div class="text-xs text-neutral-400 flex items-center gap-1.5">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-white"></i>
-        <span>Click <strong>Map</strong> on any card for system architecture</span>
-      </div>
-    </div>
-
-    <!-- PROJECTS GRID -->
-    <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <!-- Dynamic Project Cards Render Here -->
-    </div>
-
-    <!-- EMPTY / LOADING STATE -->
-    <div id="loadingState" class="py-20 flex flex-col items-center justify-center text-center gap-4">
-      <div class="w-10 h-10 rounded-full border-2 border-white/20 border-t-white animate-spin"></div>
-      <p class="text-neutral-400 text-xs font-mono">Scanning project directories and git trees...</p>
-    </div>
-
-    <div id="emptyState" class="hidden py-16 flex flex-col items-center justify-center text-center gap-3">
-      <div class="w-14 h-14 rounded-2xl bg-neutral-900 border border-white/10 flex items-center justify-center text-xl text-neutral-500">
-        📂
-      </div>
-      <h3 class="text-base font-semibold text-white">No matching projects found in this folder</h3>
-      <p class="text-xs text-neutral-400 max-w-sm">Enter another folder path in the top bar above or use the Presets.</p>
-    </div>
-
-  </main>
-
-  <!-- ================= MODALS ================= -->
-
-  <!-- 1. ARCHITECTURE DIAGRAM MODAL -->
-  <div id="diagramModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-2 sm:p-4">
-    <div class="bg-neutral-950 border border-white/15 rounded-2xl max-w-5xl w-full h-[88vh] flex flex-col shadow-2xl modal-enter overflow-hidden">
-      <!-- Modal Header -->
-      <div class="px-6 py-3.5 border-b border-white/10 flex items-center justify-between bg-black">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-white/10 text-white border border-white/15">
+          <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white mb-4">
             <i data-lucide="network" class="w-5 h-5"></i>
           </div>
-          <div>
-            <h3 class="font-bold text-base text-white" id="diagramProjectTitle">Project Architecture</h3>
-            <p class="text-xs text-neutral-400">Complete visual component & data flow graph</p>
+          <div class="flex items-center gap-2 mb-2">
+            <h3 class="text-lg font-bold text-white">Interactive Architecture Maps</h3>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white border border-white/20">Mermaid.js</span>
           </div>
+          <p class="text-neutral-400 text-xs leading-relaxed max-w-xl">
+            Automatically graphs the flow between your UI (React/Vite/HTML), Server (Express/Python), WebSockets, and External Services (Gemini AI, WhatsApp, APIs). Includes zoom, pan, and Top-Down / Left-to-Right layout toggling.
+          </p>
         </div>
-        <button class="close-modal text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-900">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <!-- Diagram Controls Toolbar -->
-      <div class="px-6 py-2.5 border-b border-white/10 bg-neutral-900/90 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="text-neutral-400 font-medium">Direction:</span>
-          <button id="toggleOrientationBtn" class="px-3 py-1 rounded-lg bg-black hover:bg-neutral-800 text-white font-semibold border border-white/20 flex items-center gap-1.5 transition-colors">
-            <i data-lucide="move-vertical" class="w-3.5 h-3.5" id="orientIcon"></i>
-            <span id="orientLabel">⬇️ Top-Down</span>
-          </button>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span class="text-neutral-400 font-medium hidden sm:inline">Zoom:</span>
-          <div class="flex items-center bg-black rounded-lg border border-white/10 p-0.5">
-            <button id="zoomOutBtn" class="p-1.5 rounded hover:bg-neutral-800 text-neutral-300" title="Zoom Out (-)">
-              <i data-lucide="minus" class="w-3.5 h-3.5"></i>
-            </button>
-            <span id="zoomLevelDisplay" class="text-xs font-mono text-white px-2 min-w-[50px] text-center">100%</span>
-            <button id="zoomInBtn" class="p-1.5 rounded hover:bg-neutral-800 text-neutral-300" title="Zoom In (+)">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            </button>
-            <button id="zoomResetBtn" class="px-2 py-1 rounded hover:bg-neutral-800 text-white text-[11px] font-medium" title="Reset Zoom">
-              Fit
-            </button>
-          </div>
+        <div class="mt-6 pt-4 border-t border-white/10 flex flex-wrap gap-2 text-[11px] font-mono text-neutral-400">
+          <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white">Client</span>
+          <span>→</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white">Express API</span>
+          <span>→</span>
+          <span class="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white">State Store</span>
         </div>
       </div>
 
-      <!-- Diagram Viewport -->
-      <div id="diagramViewport" class="flex-1 bg-black overflow-auto p-6 sm:p-10 flex items-start justify-center">
-        <div id="mermaidTarget" class="mermaid-container transition-transform duration-100 origin-top">
-          <!-- Rendered SVG with full padding -->
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="px-6 py-3 border-t border-white/10 bg-black flex items-center justify-between text-xs">
-        <span class="text-neutral-500">💡 Drag / scroll to explore • Never clipped</span>
-        <button id="copyDiagramBtn" class="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white border border-white/15 transition-colors flex items-center gap-1.5 font-medium">
-          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-          <span>Copy Mermaid Code</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. AI INSIGHTS & NEXT STEPS MODAL -->
-  <div id="aiModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-neutral-950 border border-white/15 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl modal-enter overflow-hidden">
-      <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-white/10 text-white border border-white/15">
+      <!-- Card 3: AI Memory & Next Steps -->
+      <div class="pro-card rounded-2xl p-6 flex flex-col justify-between md:col-span-2">
+        <div>
+          <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white mb-4">
             <i data-lucide="sparkles" class="w-5 h-5"></i>
           </div>
-          <div>
-            <h3 class="font-bold text-base text-white" id="aiModalTitle">AI Project Memory</h3>
-            <p class="text-xs text-neutral-400">State Assessment & Next Steps</p>
-          </div>
-        </div>
-        <button class="close-modal text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-900">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="p-6 overflow-auto flex-1 flex flex-col gap-5 text-sm">
-        <!-- Summary Box -->
-        <div class="bg-black border border-white/10 p-4 rounded-xl">
-          <div class="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-            <i data-lucide="info" class="w-3.5 h-3.5 text-white"></i>
-            <span>Project Summary</span>
-          </div>
-          <p id="aiSummaryText" class="text-neutral-200 leading-relaxed text-xs"></p>
-        </div>
-
-        <!-- Current Phase & Left Off -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="bg-black border border-white/10 p-3.5 rounded-xl">
-            <div class="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <i data-lucide="git-branch" class="w-3.5 h-3.5 text-white"></i>
-              <span>Current Phase</span>
-            </div>
-            <div id="aiStateText" class="font-semibold text-white text-xs"></div>
-          </div>
-
-          <div class="bg-black border border-white/10 p-3.5 rounded-xl">
-            <div class="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <i data-lucide="clock" class="w-3.5 h-3.5 text-neutral-400"></i>
-              <span>Where You Left Off</span>
-            </div>
-            <div id="aiLeftOffText" class="text-neutral-300 text-xs"></div>
-          </div>
-        </div>
-
-        <!-- Next Steps -->
-        <div class="bg-neutral-900/80 border border-white/15 p-4 rounded-xl">
-          <div class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <i data-lucide="check-circle-2" class="w-4 h-4 text-white"></i>
-            <span>Recommended Next Actions</span>
-          </div>
-          <ul id="aiNextStepsList" class="space-y-2.5 text-neutral-200 text-xs">
-            <!-- Dynamic Steps -->
-          </ul>
-        </div>
-      </div>
-
-      <div class="px-6 py-3 border-t border-white/10 bg-black flex items-center justify-between text-xs">
-        <span class="text-neutral-500" id="aiModeLabel">Engine: Local Smart Heuristic (₹0 Offline)</span>
-        <button id="aiCopyTasksBtn" class="px-3.5 py-1.5 rounded-lg bg-white text-black font-bold flex items-center gap-1.5 hover:bg-neutral-200 transition-colors">
-          <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
-          <span>Copy Next Steps</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. SHOWCASE / PORTFOLIO CARD MODAL -->
-  <div id="showcaseModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-neutral-950 border border-white/15 rounded-2xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl modal-enter overflow-hidden">
-      <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-white/10 text-white border border-white/15">
-            <i data-lucide="badge-check" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-base text-white">Project Showcase Card</h3>
-            <p class="text-xs text-neutral-400">Exportable resume & portfolio snippet</p>
-          </div>
-        </div>
-        <button class="close-modal text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-900">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="p-6 overflow-auto flex-1 flex flex-col gap-4">
-        <!-- The Card Preview -->
-        <div id="showcaseCardPreview" class="border border-white/20 rounded-2xl p-6 bg-black shadow-xl relative overflow-hidden">
-          <div class="flex items-start justify-between gap-4 mb-3">
-            <div>
-              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-300 px-2 py-0.5 rounded bg-white/10 border border-white/15">
-                Portfolio Showcase
-              </span>
-              <h2 id="scTitle" class="text-xl font-extrabold text-white mt-1.5">Project Title</h2>
-            </div>
-            <div id="scLinesBadge" class="text-xs font-mono text-neutral-300 bg-neutral-900 px-2.5 py-1 rounded-lg border border-white/10">
-              LOC: ~1,200
-            </div>
-          </div>
-
-          <p id="scDesc" class="text-xs text-neutral-300 leading-relaxed mb-4">
-            Project description...
+          <h3 class="text-lg font-bold text-white mb-2">AI Memory & Next Action Engine</h3>
+          <p class="text-neutral-400 text-xs leading-relaxed max-w-xl">
+            Generates a concise project state assessment and lists the top 3 actionable tasks to work on next. Runs 100% offline with zero dependencies, or connects to your free Google Gemini API key.
           </p>
-
-          <div class="border-t border-white/10 pt-3 flex flex-wrap gap-1.5" id="scTags">
-            <!-- Tech badges -->
-          </div>
         </div>
-
-        <p class="text-xs text-neutral-500 text-center">
-          Share directly to WhatsApp, copy for GitHub README, or post on LinkedIn!
-        </p>
-      </div>
-
-      <div class="px-6 py-3.5 border-t border-white/10 bg-black flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- WhatsApp 1-Click Share -->
-          <button id="shareWhatsAppBtn" class="px-3 py-2 rounded-lg bg-neutral-900 hover:bg-white hover:text-black text-white font-bold border border-white/20 transition-all flex items-center gap-1.5">
-            <i data-lucide="message-circle" class="w-4 h-4"></i>
-            <span>Share to WhatsApp</span>
-          </button>
-
-          <!-- Copy WhatsApp Text -->
-          <button id="copyWhatsAppTextBtn" class="px-3 py-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-300 font-medium border border-white/10 transition-colors flex items-center gap-1.5">
-            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-            <span>Copy Text</span>
-          </button>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Copy LinkedIn/Discord -->
-          <button id="copySocialPostBtn" class="px-3 py-2 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-300 font-medium border border-white/10 transition-colors flex items-center gap-1.5">
-            <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-            <span>Copy Post</span>
-          </button>
-
-          <!-- Copy GitHub Markdown -->
-          <button id="copyShowcaseMarkdownBtn" class="px-3 py-2 rounded-lg bg-white hover:bg-neutral-200 text-black font-extrabold transition-colors flex items-center gap-1.5">
-            <i data-lucide="clipboard" class="w-4 h-4"></i>
-            <span>GitHub Markdown</span>
-          </button>
+        <div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-neutral-400">
+          <span>Engine: Local Smart Heuristic (₹0 Offline)</span>
+          <span class="text-white font-mono">100% Private</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- 4. RUN ON ANY PC / SHARE APP MODAL -->
-  <div id="shareAppModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-neutral-950 border border-white/15 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl modal-enter overflow-hidden">
-      <!-- Modal Header -->
-      <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-white/10 text-white border border-white/15">
+      <!-- Card 4: 1-Click Showcase Card -->
+      <div class="pro-card rounded-2xl p-6 flex flex-col justify-between">
+        <div>
+          <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white mb-4">
             <i data-lucide="share-2" class="w-5 h-5"></i>
           </div>
-          <div>
-            <h3 class="font-bold text-base text-white">Run DevMemory on Any Personal PC</h3>
-            <p class="text-xs text-neutral-400">3 simple ways to use or share this with anyone</p>
-          </div>
-        </div>
-        <button class="close-modal text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-900">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-6 overflow-auto flex-1 flex flex-col gap-5 text-xs">
-        
-        <!-- Option 1: The Epic NPX Way -->
-        <div class="bg-neutral-900/60 border border-white/20 rounded-xl p-4.5">
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded-full bg-white text-black font-extrabold text-[10px] uppercase tracking-wider">
-                ⚡ Option 01 • The Epic Way
-              </span>
-              <h4 class="font-bold text-sm text-white">Run in Any Folder via Terminal</h4>
-            </div>
-            <span class="text-[11px] text-neutral-400 font-mono hidden sm:inline">Zero Download</span>
-          </div>
-
-          <p class="text-neutral-300 mb-3 leading-relaxed">
-            Open terminal in any project folder on your PC and run this command. DevMemory automatically launches in your browser:
+          <h3 class="text-lg font-bold text-white mb-2">1-Click Social & Portfolio Sharing</h3>
+          <p class="text-neutral-400 text-xs leading-relaxed">
+            Format your projects into exportable cards for your GitHub README, LinkedIn post, or share directly to WhatsApp with 1 click.
           </p>
-
-          <div class="flex items-center justify-between bg-black border border-white/15 rounded-lg p-2.5 font-mono text-white text-xs">
-            <code>npx devmemory</code>
-            <button id="copyNpxCmdBtn" class="px-3 py-1 rounded bg-white hover:bg-neutral-200 text-black font-sans font-bold transition-colors flex items-center gap-1 text-[11px]">
-              <i data-lucide="copy" class="w-3 h-3"></i>
-              <span>Copy</span>
-            </button>
-          </div>
         </div>
-
-        <!-- Option 2: 1-Click ZIP Download -->
-        <div class="bg-neutral-900/60 border border-white/20 rounded-xl p-4.5">
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded-full bg-neutral-800 text-white font-bold text-[10px] uppercase tracking-wider border border-white/15">
-                📦 Option 02 • 1-Click ZIP
-              </span>
-              <h4 class="font-bold text-sm text-white">Download Standalone ZIP</h4>
-            </div>
-            <span class="text-[11px] text-neutral-400 font-mono">42 KB</span>
-          </div>
-
-          <p class="text-neutral-300 mb-3 leading-relaxed">
-            Download the clean package. Extract anywhere on your PC and double-click <strong>start.bat</strong> to run immediately!
-          </p>
-
-          <a 
-            href="/DevMemory.zip" 
-            download="DevMemory.zip"
-            id="downloadZipBtn"
-            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-neutral-200 text-black font-extrabold transition-all shadow-md shadow-white/10 w-full sm:w-auto text-xs"
-          >
-            <i data-lucide="download" class="w-4 h-4"></i>
-            <span>Download DevMemory.zip (Clean Build)</span>
-          </a>
+        <div class="mt-6 pt-4 border-t border-white/10 flex items-center gap-2 text-[11px] font-mono text-neutral-400">
+          <span>WhatsApp • GitHub • LinkedIn</span>
         </div>
-
-        <!-- Option 3: GitHub Clone -->
-        <div class="bg-black border border-white/10 rounded-xl p-4.5">
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-300 font-bold text-[10px] uppercase tracking-wider border border-white/10">
-                🐙 Option 03 • Git Clone
-              </span>
-              <h4 class="font-bold text-sm text-white">Clone from GitHub</h4>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between bg-neutral-900 border border-white/5 rounded-lg p-2.5 font-mono text-neutral-300 text-[11px]">
-            <code class="truncate mr-2">git clone https://github.com/Gourav-Dadheech/DevMemory.git</code>
-            <button id="copyGitCloneBtn" class="px-3 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-white font-sans font-medium transition-colors flex items-center gap-1 text-[11px] shrink-0">
-              <i data-lucide="copy" class="w-3 h-3"></i>
-              <span>Copy</span>
-            </button>
-          </div>
-        </div>
-
       </div>
 
-      <!-- Modal Footer -->
-      <div class="px-6 py-3 border-t border-white/10 bg-black flex flex-wrap items-center justify-between gap-2 text-xs">
-        <a href="/download" target="_blank" class="text-neutral-300 hover:text-white flex items-center gap-1 font-semibold transition-colors">
-          <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-          <span>Open Official Download Website</span>
-          <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
-        </a>
-        <button class="close-modal px-4 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-200 font-medium border border-white/10">
-          Close
-        </button>
-      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- 5. SETTINGS MODAL -->
-  <div id="settingsModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-neutral-950 border border-white/15 rounded-2xl max-w-lg w-full shadow-2xl modal-enter overflow-hidden">
-      <div class="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black">
-        <div class="flex items-center gap-3">
-          <div class="p-2 rounded-lg bg-neutral-900 text-white border border-white/10">
-            <i data-lucide="sliders" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-base text-white">DevMemory Settings</h3>
-            <p class="text-xs text-neutral-400">Configure paths & optional AI keys</p>
-          </div>
+  <!-- ================= 3 INSTALLATION OPTIONS ================= -->
+  <section id="install" class="max-w-6xl mx-auto px-6 py-20 border-t border-white/10">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <span class="text-xs font-mono uppercase tracking-widest text-neutral-400">02 / Get Started</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-2">
+        Choose your setup method.
+      </h2>
+      <p class="text-neutral-400 text-sm mt-2">
+        DevMemory requires zero database setup and works immediately on any machine with Node.js.
+      </p>
+    </div>
+
+    <!-- The 3 Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- OPTION 1: NPX (THE EPIC WAY) -->
+      <div class="pro-card rounded-2xl p-7 flex flex-col justify-between relative overflow-hidden border-white/30">
+        <div class="absolute top-4 right-4">
+          <span class="px-2.5 py-0.5 rounded-full bg-white text-black text-[10px] font-extrabold uppercase tracking-wider">
+            Most Popular
+          </span>
         </div>
-        <button class="close-modal text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-900">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
 
-      <div class="p-6 flex flex-col gap-4 text-xs">
         <div>
-          <label class="block font-semibold text-neutral-300 mb-1">
-            Google Gemini API Key <span class="text-neutral-400 font-normal font-mono">(Optional • 100% Free)</span>
-          </label>
-          <input 
-            type="password" 
-            id="apiKeyInput"
-            placeholder="AIzaSy..."
-            class="w-full bg-black border border-white/15 rounded-lg px-3 py-2 text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-white font-mono"
-          />
-          <p class="text-[11px] text-neutral-500 mt-1">
-            DevMemory works 100% offline without any key! Adding a free key unlocks deeper natural language analysis.
+          <div class="text-xs font-mono text-neutral-400 uppercase tracking-wider mb-2">Option 01</div>
+          <h3 class="text-xl font-black text-white mb-2">Terminal (npx)</h3>
+          <p class="text-neutral-400 text-xs leading-relaxed mb-6">
+            Run DevMemory in any project folder without installing or cloning anything. Windows, Mac, and Linux supported.
           </p>
+
+          <div class="bg-black border border-white/15 rounded-xl p-3 flex items-center justify-between font-mono text-xs text-white mb-4">
+            <code>npx devmemory</code>
+            <button 
+              onclick="copyCommand('npx devmemory')"
+              class="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors"
+              title="Copy Command"
+            >
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
         </div>
+
+        <button 
+          onclick="copyCommand('npx devmemory')"
+          class="w-full py-2.5 rounded-xl bg-white text-black font-extrabold text-xs hover:bg-neutral-200 transition-all flex items-center justify-center gap-1.5"
+        >
+          <i data-lucide="terminal" class="w-4 h-4"></i>
+          <span>Copy Terminal Command</span>
+        </button>
       </div>
 
-      <div class="px-6 py-3 border-t border-white/10 bg-black flex items-center justify-end gap-2 text-xs">
-        <button class="close-modal px-3 py-2 rounded-lg bg-neutral-900 text-neutral-300 hover:bg-neutral-800 border border-white/10">Cancel</button>
-        <button id="saveSettingsBtn" class="px-4 py-2 rounded-lg bg-white text-black font-extrabold hover:bg-neutral-200">Save Settings</button>
+      <!-- OPTION 2: 1-CLICK ZIP -->
+      <div class="pro-card rounded-2xl p-7 flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-mono text-neutral-400 uppercase tracking-wider mb-2">Option 02</div>
+          <h3 class="text-xl font-black text-white mb-2">Standalone ZIP</h3>
+          <p class="text-neutral-400 text-xs leading-relaxed mb-6">
+            Download the clean package (only 36 KB). Extract anywhere and double-click <strong>start.bat</strong> to run. Perfect to share with friends.
+          </p>
+
+          <div class="bg-black border border-white/10 rounded-xl p-3 flex items-center justify-between text-xs text-neutral-300 mb-4">
+            <span class="font-mono">DevMemory.zip</span>
+            <span class="text-neutral-500 font-mono text-[11px]">36 KB</span>
+          </div>
+        </div>
+
+        <a 
+          href="/DevMemory.zip" 
+          download="DevMemory.zip"
+          class="w-full py-2.5 rounded-xl bg-neutral-900 border border-white/20 hover:border-white/50 text-white font-extrabold text-xs transition-all flex items-center justify-center gap-1.5"
+        >
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Download DevMemory.zip</span>
+        </a>
+      </div>
+
+      <!-- OPTION 3: GIT CLONE -->
+      <div class="pro-card rounded-2xl p-7 flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-mono text-neutral-400 uppercase tracking-wider mb-2">Option 03</div>
+          <h3 class="text-xl font-black text-white mb-2">GitHub Clone</h3>
+          <p class="text-neutral-400 text-xs leading-relaxed mb-6">
+            Clone the source code to customize, extend features, or contribute improvements.
+          </p>
+
+          <div class="bg-black border border-white/10 rounded-xl p-3 font-mono text-[11px] text-neutral-300 truncate mb-4">
+            <code>git clone https://github.com/Gourav-Dadheech/DevMemory.git</code>
+          </div>
+        </div>
+
+        <button 
+          onclick="copyCommand('git clone https://github.com/Gourav-Dadheech/DevMemory.git && cd DevMemory && npm start')"
+          class="w-full py-2.5 rounded-xl bg-neutral-900 border border-white/20 hover:border-white/50 text-white font-extrabold text-xs transition-all flex items-center justify-center gap-1.5"
+        >
+          <i data-lucide="git-branch" class="w-4 h-4"></i>
+          <span>Copy Git Clone</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="border-t border-white/10 bg-black py-12 mt-auto">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-neutral-500">
+      
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-6 rounded bg-white text-black flex items-center justify-center font-black text-xs">
+          DM
+        </div>
+        <span class="text-neutral-400 font-medium">DevMemory</span>
+        <span>•</span>
+        <span>Built for solo creators & developers</span>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <a href="/" class="hover:text-white transition-colors">Launch App</a>
+        <a href="/DevMemory.zip" download class="hover:text-white transition-colors">Download (.zip)</a>
+        <a href="#features" class="hover:text-white transition-colors">Features</a>
       </div>
     </div>
+  </footer>
+
+  <!-- ================= COPY TOAST NOTIFICATION ================= -->
+  <div id="copyToast" class="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl bg-white text-black font-semibold text-xs shadow-2xl flex items-center gap-2 opacity-0 pointer-events-none translate-y-2">
+    <i data-lucide="check" class="w-4 h-4 text-black"></i>
+    <span id="toastMsg">Copied to clipboard!</span>
   </div>
 
-  <!-- Main JavaScript App -->
-  <script src="app.js"></script>
+  <script>
+    lucide.createIcons();
+
+    function copyCommand(text) {
+      navigator.clipboard.writeText(text);
+      const toast = document.getElementById('copyToast');
+      const msg = document.getElementById('toastMsg');
+      msg.textContent = `Copied "${text}"!`;
+      
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+      }, 2500);
+    }
+  </script>
 </body>
 </html>

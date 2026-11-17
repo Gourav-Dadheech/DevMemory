@@ -195,7 +195,12 @@ app.get('/api/download-zip', (req, res) => {
 
 // 9. Official Product / Download Landing Page
 app.get('/download', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'download.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// 10. Local Developer Cockpit Dashboard
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 const server = app.listen(PORT, () => {

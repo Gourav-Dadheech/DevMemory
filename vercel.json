@@ -1,3 +1,8 @@
 {
-  "cleanUrls": true
+  "version": 2,
+  "cleanUrls": true,
+  "routes": [
+    { "src": "/DevMemory.zip", "dest": "/DevMemory.zip" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
