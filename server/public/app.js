@@ -645,7 +645,7 @@ document.getElementById('copyNpxCmdBtn').addEventListener('click', () => {
 });
 
 document.getElementById('copyGitCloneBtn').addEventListener('click', () => {
-  navigator.clipboard.writeText('git clone https://github.com/yourname/DevMemory.git');
+  navigator.clipboard.writeText('git clone https://github.com/Gourav-Dadheech/DevMemory.git');
   alert('Copied git clone command to clipboard!');
 });
 
