@@ -47,6 +47,10 @@ const DEFAULT_SCAN_PATH = process.env.DEVMEMORY_SCAN_PATH
 // 1. Scan root directory of projects
 app.get('/api/scan', async (req, res) => {
   try {
+    const isWeb = process.env.VERCEL || (req.headers.host && req.headers.host.includes('vercel.app'));
+    if (isWeb) {
+      return res.json({ projects: [], scannedPath: '', subfolders: [], recentPaths: [] });
+    }
     const db = readDb();
     let targetPath = req.query.path || db.customScanPath || DEFAULT_SCAN_PATH;
     targetPath = path.resolve(targetPath);
@@ -200,7 +204,8 @@ app.get(['/', '/download', '/landing'], (req, res) => {
 
 // 10. Local Developer Cockpit Dashboard (for local desktop app)
 app.get(['/dashboard', '/app'], (req, res) => {
-  if (process.env.VERCEL) {
+  const isWeb = process.env.VERCEL || (req.headers.host && req.headers.host.includes('vercel.app'));
+  if (isWeb) {
     return res.redirect('/');
   }
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
